@@ -388,16 +388,20 @@ class AdequateCutOutLongChordsMapper(BaseMapper):
 
     def __init__(self, min_big_chord_duration=128,
                  min_track_duration=10 * 128 / 4,
-                 respect_measure=True, measure_size=8, **kwargs):
+                 treat_melody_as_chords=False,
+                 respect_measure=False, measure_size=8, **kwargs):
         """
         :param min_big_chord_duration (in 1/128th): chords from this duration are considered long
         :param min_track_duration (in 1/128th): tracks smaller than that are not considered after split
+        :param respect_measure: Split song only by bars. To use respect_measure you must split song to GCDs.
+        :param treat_melody_as_chords: Treat repeats of note in melody as long note, and cut it.
         """
         super().__init__(**kwargs)
         self.min_big_chord_duration = min_big_chord_duration
         self.min_duration = min_track_duration
         self.respect_measure = respect_measure
         self.measure_size = measure_size
+        self.treat_melody_as_chords = treat_melody_as_chords
         self.stats['melody pause duration'] = dict()
         self.stats['chord pause duration'] = dict()
 
@@ -451,10 +455,10 @@ class AdequateCutOutLongChordsMapper(BaseMapper):
         songs = []
         changing = True
         while changing:
-            # if track_num == 0:
-            #     times = self.get_times_melody(song.tracks[track_num])
-            # else:
-            times = self.get_times_chords(song.tracks[track_num])
+            if track_num == 0 and not self.treat_melody_as_chords:
+                times = self.get_times_melody(song.tracks[track_num])
+            else:
+                times = self.get_times_chords(song.tracks[track_num])
 
             changing = False if times is None else True
             if changing:

@@ -1,4 +1,6 @@
 import pickle
+from copy import deepcopy
+
 import numpy as np
 from functools import total_ordering
 import music21
@@ -178,19 +180,19 @@ class Track:
 
     def get_music21_repr(self, with_repeats=False):
         ret = music21.stream.Stream()
-        if with_repeats:
+        if not with_repeats:
             try:
-                chords_without_repeats = [self.chords[0]]
+                chords_without_repeats = [deepcopy(self.chords[0])]
                 for chord in self.chords[1:]:
                     if hasattr(chord, 'is_repeat') and chord.is_repeat:
                         chords_without_repeats[-1].duration += chord.duration
                     else:
-                        chords_without_repeats.append(chord)
+                        chords_without_repeats.append(deepcopy(chord))
                 ret.append([chord.get_music21_repr() for chord in chords_without_repeats])
             except IndexError:
                 pass
         else:
-            ret = [chord.get_music21_repr() for chord in self.chords]
+            ret.append([chord.get_music21_repr() for chord in self.chords])
 
         return ret
 
