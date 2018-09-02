@@ -1,5 +1,10 @@
+import music21
+
 from ml.dataset.base_mapper import BaseMapper, MapperError
 import numpy as np
+from ml.structures import *
+
+from ml.structures import Chord
 
 
 class VarietyMapper(BaseMapper):
@@ -27,6 +32,49 @@ class VarietyMapper(BaseMapper):
         return song
 
 
+class SimplifyChordsMapper(BaseMapper):
+
+    @staticmethod
+    def map_many(iterable, function, *other):
+        if other:
+            return ClassifyChordsMapper.map_many(map(function, iterable), *other)
+        return map(function, iterable)
+
+    @staticmethod
+    def apply_many(elem, function, *other):
+        if other:
+            return ClassifyChordsMapper.apply_many(function(elem), *other)
+        return function(elem)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.root_to_simple_chord_dict = dict()
+        self.chord_to_root_dict = dict()
+
+    def process(self, song):
+        new_chords = []
+        for chord in song.chord_track.chords:
+            if chord.notes:
+                if tuple(chord.notes) not in self.chord_to_root_dict:
+                    music21_chord = chord.get_music21_repr()
+                    root = music21_chord.root().name
+                    simple_chord = Chord.from_music21_repr(music21.harmony.ChordSymbol(root))
+
+                    self.chord_to_root_dict[tuple(chord.notes)] = root
+                    self.root_to_simple_chord_dict[root] = simple_chord
+                    chord.notes = simple_chord.notes
+                    new_chords.append(chord)
+                else:
+                    chord.notes = self.root_to_simple_chord_dict[self.chord_to_root_dict[tuple(chord.notes)]].notes
+                    new_chords.append(chord)
+            else:
+                new_chords.append(chord)
+
+        song.chord_track.chords = new_chords
+        return song
+
+
+# TODO: this mapper changes data format dramatically. May it be better to convert it to Processor?
 class ClassifyChordsMapper(BaseMapper):
 
     @staticmethod
@@ -43,9 +91,8 @@ class ClassifyChordsMapper(BaseMapper):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.chords_set = set()
-        self.cache = dict()
-        self.final_dict = dict()
+        self.chord_to_root_dict = dict()
+        self.reverse_chord_to_root_dict = dict()
 
     def process(self, song):
         melody = [0 if not chord.notes else chord.notes[0].number for chord in song.melody_track.chords]
@@ -55,18 +102,33 @@ class ClassifyChordsMapper(BaseMapper):
             if chord.is_repeat:
                 rhythm.append('-')
             elif chord.notes:
-                if tuple(chord.notes) not in self.cache:
-                    s = chord.get_music21_repr().pitchedCommonName
-                    final_s = ClassifyChordsMapper.apply_many(s,
-                                                              lambda s: s.split(' ')[0],
-                                                              lambda s: s[:3],
-                                                              lambda s: s[:2] if s[2] == '-' else s,
-                                                              lambda s: s.replace('-', 'b'))
-                    self.final_dict[tuple(chord.notes)] = final_s
-                    self.cache[tuple(chord.notes)] = s
-                    self.chords_set.add(final_s)
-                rhythm.append(self.final_dict[tuple(chord.notes)])
+                if tuple(chord.notes) not in self.chord_to_root_dict:
+                    music21_chord = chord.get_music21_repr()
+                    root = music21_chord.root().name
+
+                    self.chord_to_root_dict[tuple(chord.notes)] = root
+
+                rhythm.append(self.chord_to_root_dict[tuple(chord.notes)])
             else:
                 rhythm.append('')
 
+        for k, v in self.chord_to_root_dict.items():
+            self.reverse_chord_to_root_dict[v] = k
+
         return [[melody, rhythm]]
+
+    def inverse_process(self, song):
+        melody_track = Track([Chord([Note(number)], 64, 128 / 8) for number in song[0]])
+
+        chord_track = []
+        for symbol in song[1]:
+            if symbol == '':
+                chord_track.append(Chord([], 64, 128 / 8))
+            elif symbol == '-':
+                chord_track.append(deepcopy(chord_track[-1]))
+            else:
+                notes = list(self.reverse_chord_to_root_dict[symbol])
+                chord_track.append(Chord(notes, 64, 128 / 4))
+        chord_track = Track(chord_track)
+
+        return Song([melody_track, chord_track])

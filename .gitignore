@@ -103,3 +103,6 @@ ENV/
 # MIDI files
 *.mid
 
+.idea
+*.pickle
+*.npy

@@ -64,10 +64,14 @@ class Note:
     def __hash__(self):
         return self.number
 
-    def get_music21_pitch(self):
+    def get_music21_repr(self):
         ret = music21.pitch.Pitch()
         ret.midi = self.number
         return ret
+
+    @staticmethod
+    def from_music21_repr(pitch:music21.pitch.Pitch):
+        return Note(number=pitch.midi)
 
 
 class Chord:
@@ -104,13 +108,19 @@ class Chord:
     def get_music21_repr(self):
         if self.notes:
             # Chord
-            return music21.chord.Chord(notes=[note.get_music21_pitch() for note in self.notes],
+            return music21.chord.Chord(notes=[note.get_music21_repr() for note in self.notes],
                                        duration=music21.duration.Duration(self.duration * 4 / 128),
                                        volume=music21.volume.Volume(velocity=self.velocity))
         else:
             # Rest
             return music21.note.Rest(duration=music21.duration.Duration(self.duration * 4 / 128))
 
+    @staticmethod
+    def from_music21_repr(chord:music21.chord.Chord, is_repeat=False):
+        return Chord(notes_list=[Note.from_music21_repr(pitch) for pitch in chord.pitches],
+                  velocity=chord.volume.velocity,
+                  duration=int(chord.duration.quarterLength*128/4),
+                  is_repeat=is_repeat)
 
 
 class Track:
