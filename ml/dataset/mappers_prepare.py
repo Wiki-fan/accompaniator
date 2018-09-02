@@ -118,17 +118,27 @@ class ClassifyChordsMapper(BaseMapper):
         return [[melody, rhythm]]
 
     def inverse_process(self, song):
-        melody_track = Track([Chord([Note(number)], 64, 128 / 8) for number in song[0]])
+        melody_track = Track([Chord([Note(number)], 128 / 8, 64) for number in song[0]])
 
         chord_track = []
         for symbol in song[1]:
             if symbol == '':
-                chord_track.append(Chord([], 64, 128 / 8))
+                chord_track.append(Chord([], 128 / 8, 64))
             elif symbol == '-':
                 chord_track.append(deepcopy(chord_track[-1]))
             else:
                 notes = list(self.reverse_chord_to_root_dict[symbol])
-                chord_track.append(Chord(notes, 64, 128 / 4))
+                chord_track.append(Chord(notes, 128 / 8, 64))
         chord_track = Track(chord_track)
 
         return Song([melody_track, chord_track])
+
+    def dump_dicts(self, filename):
+        with open(filename, 'wb') as f:
+            pickle.dump(self.chord_to_root_dict, f)
+            pickle.dump(self.reverse_chord_to_root_dict, f)
+
+    def load_dicts(self, filename):
+        with open(filename, 'rb') as f:
+            self.chord_to_root_dict = pickle.load(f)
+            self.reverse_chord_to_root_dict = pickle.load(f)
