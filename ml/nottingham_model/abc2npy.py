@@ -136,7 +136,7 @@ fnames = ['jigs.abc', 'ashover.abc', 'hpps.abc', 'morris.abc', 'playford.abc', '
 songs = []
 
 for fname in fnames:
-    flines = open('data/'+fname).readlines()
+    flines = open('../datasets/nottingham/data/'+fname).readlines()
 
     current_key = 'C'
     current_meter = None
@@ -177,5 +177,5 @@ for song in songs[1:]:
         print(song)
 print(X, y)
 print(X.shape, y.shape)
-np.save("X.npy", X)
-np.save("y.npy", y)
+np.save("../datasets/nottingham/X.npy", X)
+np.save("../datasets/nottingham/y.npy", y)

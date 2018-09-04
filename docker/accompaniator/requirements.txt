@@ -16,6 +16,7 @@ numpy
 pandas
 matplotlib
 scipy
+sklearn2pmml
 
 # QA stuff
 flake8

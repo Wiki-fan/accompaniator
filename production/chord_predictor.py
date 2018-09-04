@@ -1,7 +1,7 @@
 import time
 import numpy as np
 import pandas as pd
-from production.structures import Note, Chord
+from ml.structures import Note, Chord
 from multiprocessing import Queue, Process, Value
 
 from keras.models import Sequential

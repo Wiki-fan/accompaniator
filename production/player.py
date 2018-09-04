@@ -5,7 +5,7 @@ from time import sleep
 
 from mido import Message, MidiFile, MidiTrack
 from rtmidi import MidiOut
-from production.structures import Note, Chord
+from ml.structures import Note, Chord
 from multiprocessing import Queue, Process, Value
 import production.pyfluidsynth as fluidsynth
 

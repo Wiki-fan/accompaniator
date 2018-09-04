@@ -6,7 +6,7 @@ if __name__ == '__main__':
     q = Player(240000000)
     q.run()
     song = Song()
-    song.load("bach")
+    song.load("bach_song.pickle")
     for chord in song.tracks[0].chords:
         q.put(chord)
         sleep(1)

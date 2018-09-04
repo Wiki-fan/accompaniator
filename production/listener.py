@@ -6,7 +6,7 @@ import pyaudio
 from time import sleep
 from multiprocessing import Queue, Process, Value
 from aubio import notes, onset, tempo
-from production.structures import Note, Chord
+from ml.structures import Note, Chord
 
 """
 1 beat in bpm is 1/4 of musical beat

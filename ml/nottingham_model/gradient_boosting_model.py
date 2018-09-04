@@ -1,7 +1,7 @@
 import numpy as np
 
-y = np.load("y.npy")
-X = np.load("X.npy")
+y = np.load("../datasets/nottingham/y.npy")
+X = np.load("../datasets/nottingham/X.npy")
 # els, counts = np.unique(y, return_counts=True)
 # plt.scatter(range(len(els)), counts)
 # plt.show()

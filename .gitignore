@@ -112,3 +112,11 @@ ENV/
 # Serialization
 *.pickle
 *.npy
+*.7z
+
+# JS
+docker/accompaniator/node_modules/
+docker/accompaniator/package-lock.json
+accompaniator_web/node_modules/
+accompaniator_web/nohup.out
+accompaniator_web/package-lock.json

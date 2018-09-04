@@ -1,8 +1,8 @@
 import numpy as np
 import pickle
 
-y = np.load("y.npy")
-X = (np.load("X.npy"))
+y = np.load("../datasets/nottingham/y.npy")
+X = (np.load("../datasets/nottingham/X.npy"))
 print(X[0, :])
 els, counts = np.unique(y, return_counts=True)
 # plt.scatter(range(len(els)), counts)
@@ -73,6 +73,6 @@ y_pred = clf.predict(X_test)
 print(accuracy_score(y_test, y_pred))
 print(abs_dist_score(clf, X_test, y_test))
 
-with open('rf_nottingham.pkl', 'wb') as fid:
+with open('../datasets/nottingham/rf_nottingham.pkl', 'wb') as fid:
     pickle.dump(clf, fid)
 print(y_test[10], X_test[10, :], clf.predict(X_test)[10])
