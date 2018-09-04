@@ -15,7 +15,8 @@ def simplify_chord(ch):
     ch = ch.replace(" ", "")
     return ch
 
-def cut_song(song, num_tacts, l_min_note, with_chords=True, with_beat=True, delay=4): #3 arrays: notes, chords, beat
+
+def cut_song(song, num_tacts, l_min_note, with_chords=True, with_beat=True, delay=4):  # 3 arrays: notes, chords, beat
     l_piece = num_tacts * l_min_note
     notes = np.array(song[0])
     chords = np.array([simplify_chord(ch) for ch in song[1]])
@@ -135,7 +136,7 @@ fnames = ['jigs.abc', 'ashover.abc', 'hpps.abc', 'morris.abc', 'playford.abc', '
 songs = []
 
 for fname in fnames:
-    flines = open(fname).readlines()
+    flines = open('data/'+fname).readlines()
 
     current_key = 'C'
     current_meter = None
@@ -164,11 +165,11 @@ for fname in fnames:
 
 songs = songs[1:]
 n_tacts = 2
-X, y = cut_song(songs[0], n_tacts, 16, with_chords=True, with_beat=True)
+X, y = cut_song(songs[0], n_tacts, 16, with_chords=False, with_beat=False)
 for song in songs[1:]:
     try:
         if len(song[0]) > 32:
-            X_, y_ = cut_song(song, n_tacts, 16, with_chords=True, with_beat=True)
+            X_, y_ = cut_song(song, n_tacts, 16, with_chords=False, with_beat=False)
             X = np.vstack([X, X_])
             y = np.hstack([y, y_])
     except ValueError:

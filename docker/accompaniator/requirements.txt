@@ -23,3 +23,8 @@ coverage
 
 # Common stuff
 tqdm
+
+# Web stuff
+django
+tornado
+six

@@ -103,6 +103,12 @@ ENV/
 # MIDI files
 *.mid
 
+# IDEA projects
 .idea
+
+# Django
+*.sqlite3
+
+# Serialization
 *.pickle
 *.npy
