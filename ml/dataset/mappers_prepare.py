@@ -107,13 +107,12 @@ class ClassifyChordsMapper(BaseMapper):
                     root = music21_chord.root().name
 
                     self.chord_to_root_dict[tuple(chord.notes)] = root
+                    cs = music21.harmony.ChordSymbol(root)
+                    self.reverse_chord_to_root_dict[root] = tuple(Chord.from_music21_repr(cs).notes)
 
                 rhythm.append(self.chord_to_root_dict[tuple(chord.notes)])
             else:
                 rhythm.append('')
-
-        for k, v in self.chord_to_root_dict.items():
-            self.reverse_chord_to_root_dict[v] = k
 
         return [[melody, rhythm]]
 

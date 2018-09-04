@@ -74,3 +74,7 @@ class Predictor:
         predicted_song = self.ccm.inverse_process([[], predicted])
         predicted_song.tracks[0] = deepcopy(song_c.tracks[0])
         return predicted_song
+
+    def dump_clf(self, filename):
+        with open(filename, 'wb') as fid:
+            pickle.dump(self.clf, fid)
