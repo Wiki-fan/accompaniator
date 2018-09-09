@@ -16,29 +16,12 @@ def accuracy_over_axis(y_test, y_pred, axis=1):
     return sum(equal_over_axis(y_test, y_pred, 1)) / y_pred.shape[np.abs(1 - axis)]
 
 
-class Predictor:
+class BasePredictor:
     def __init__(self):
         pass
 
     def encode(self):
-        print('Shape: ', self.X.shape, self.y.shape)
-        self.X_cat_mask = np.array([type(val) == str for val in self.X[0]])
-        self.X_num_mask = np.logical_not(self.X_cat_mask)
-
-        X_cat = self.X[:, self.X_cat_mask]
-        X_num = self.X[:, self.X_num_mask]
-
-        self.enc = LabelEncoder()
-        self.enc.fit(np.hstack([X_cat.flatten(), self.y.flatten()]))
-        print('Classes:', self.enc.classes_)
-        for i in range(sum(self.X_cat_mask)):
-            X_cat[:, i] = self.enc.transform(X_cat[:, i])
-            self.y[:, i] = self.enc.transform(self.y[:, i])
-
-        self.X = np.hstack([X_cat, X_num])
-
-        self.X = self.X.astype(np.int64)
-        self.y = self.y.astype(np.int64)
+        raise NotImplementedError()
 
     def fit(self, clf, X_train, y_train):
         self.clf = clf
